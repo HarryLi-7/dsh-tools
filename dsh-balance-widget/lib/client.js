@@ -109,31 +109,26 @@ window.__ModuleLoader__.load({
         userSelect: "none",
         cursor: "pointer"
       };
-      const dotBase = { width: "5px", height: "5px", borderRadius: "50%", flex: "none" };
       const TONES = {
-        normal:  { dot: "#4caf7d", text: "var(--dsw-alias-label-secondary)" },
-        low:     { dot: "#e8710a", text: "#e8710a" },
-        critical:{ dot: "#d93025", text: "#d93025" },
-        warn:    { dot: "#e8710a", text: "#e8710a" },
-        alert:   { dot: "#d93025", text: "#d93025" }
+        normal:  "var(--dsw-alias-label-secondary)",
+        low:     "#e8710a",
+        critical:"#d93025",
+        warn:    "#e8710a",
+        alert:   "#d93025"
       };
 
       const { alert, warn, line } = buildContent(data);
       const tone = toneOf(data);
-      const toneStyle = TONES[tone];
       const text = alert || warn || line || "余额:—";
       return createElement("a", {
         href: PLATFORM_URL,
         target: "_blank",
         rel: "noopener",
         title: "点击打开 DeepSeek 官方余额页",
-        style: Object.assign({}, chipStyle, { color: toneStyle.text }),
+        style: Object.assign({}, chipStyle, { color: TONES[tone] }),
         onMouseEnter: (e) => { e.currentTarget.style.background = "rgba(128,128,128,0.15)"; },
         onMouseLeave: (e) => { e.currentTarget.style.background = "transparent"; }
-      }, [
-        createElement("span", { key: "dot", style: Object.assign({}, dotBase, { background: toneStyle.dot }) }),
-        createElement("span", { key: "text" }, text)
-      ]);
+      }, createElement("span", { key: "text" }, text));
     }
 
     const name = "balance-widget";
