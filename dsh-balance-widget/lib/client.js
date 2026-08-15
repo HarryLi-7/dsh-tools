@@ -146,13 +146,12 @@ window.__ModuleLoader__.load({
     const inject = ["slots"];
 
     function apply(ctx) {
-      // 极低余额呼吸动画 + 无障碍(减少动态效果偏好)降级
+      // 极低余额呼吸动画
       if (typeof document !== "undefined" && !document.getElementById("dsh-balance-widget-styles")) {
         const style = document.createElement("style");
         style.id = "dsh-balance-widget-styles";
         style.textContent = [
-          "@keyframes dsh-balance-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }",
-          "@media (prefers-reduced-motion: reduce) { [data-dsh-balance-breathe] { animation: none !important; } }"
+          "@keyframes dsh-balance-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }"
         ].join("\n");
         document.head.appendChild(style);
       }
