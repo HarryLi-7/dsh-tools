@@ -64,11 +64,7 @@ dsh plugin --profile web add /path/to/dsh-balance-widget
 
 ## 截图
 
-![侧边栏展开](demo-shots/1-sidebar-展开.png)
-
-![更新弹层](demo-shots/2-更新弹层.png)
-
-![侧边栏收起](demo-shots/3-sidebar-收起.png)
+![余额芯片(输入栏行内左侧,当前为低余额告警橙色态)](screenshots/balance-chip.png)
 
 ## 安全说明
 
