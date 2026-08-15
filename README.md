@@ -61,6 +61,16 @@ dsh plugin --profile web add /path/to/dsh-balance-widget
 ./sync.sh
 ```
 
+
+## 截图
+
+![侧边栏展开](demo-shots/1-sidebar-展开.png)
+
+![更新弹层](demo-shots/2-更新弹层.png)
+
+![侧边栏收起](demo-shots/3-sidebar-收起.png)
+
 ## 安全说明
+
 
 所有代码不含任何密钥。API key 运行时从 `~/.dsh/.credentials.yaml` 读取,请勿将该文件上传到任何仓库。
