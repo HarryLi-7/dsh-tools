@@ -1,0 +1,6 @@
+.DS_Store
+*.log
+.credentials*
+session.jsonl*
+__pycache__/
+*.pyc
