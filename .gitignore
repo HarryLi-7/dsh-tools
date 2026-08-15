@@ -4,3 +4,4 @@
 session.jsonl*
 __pycache__/
 *.pyc
+balance_*_preview.html

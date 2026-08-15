@@ -7,7 +7,8 @@ DeepSeek Harness (DSH) 小工具集:余额查询 + 界面余额小部件。
 | 文件/目录 | 说明 |
 |---|---|
 | `check_balance.py` | 命令行余额查询脚本,输出 `充值余额` / `赠送` 两行。读取 `~/.dsh/.credentials.yaml` 中的 `DEEPSEEK_API_KEY`。 |
-| `dsh-balance-widget/` | DSH Web GUI 余额小部件(Cordis 客户端插件):在输入栏行内左侧显示 `余额:X.XX CNY`,每分钟自动刷新。 |
+| `dsh-balance-widget/` | DSH Web GUI 余额小部件(Cordis 客户端插件):输入栏行内左侧显示余额,每分钟自动刷新。 |
+| `sync.sh` | 一键把 `~/.dsh` 中安装的插件同步回本仓库并推送 GitHub。 |
 
 ## dsh-balance-widget 安装方法
 
@@ -36,11 +37,19 @@ DeepSeek Harness (DSH) 小工具集:余额查询 + 界面余额小部件。
 ## 小部件行为
 
 - 显示 `余额:X.XX CNY`;当赠送金额 > 0 时自动切换为 `余额 · 充值 · 赠送` 单行紧凑格式
-- 每分钟刷新(浏览器轮询本地 host,host 对 DeepSeek 官方接口 60 秒缓存回源)
+- 每分钟刷新;接口失败后 10 秒快速重试,恢复后自动回到正常节奏
+- **点击芯片 → 新标签打开 DeepSeek 官方余额页**(https://platform.deepseek.com/balance),需要浏览器已登录平台账号
+- **低余额告警**:余额 < ¥5 芯片变橙色,< ¥2 变红色(状态圆点同步变色)
 - 账户不可用时显示红色 `⚠️ 账户状态异常`
 - 接口连续失败 3 次后显示橙色 `⚠️ 余额接口无法访问,正在重试`,恢复后自动消失
 - API key 只留在 host 侧,通过 DSH 的 credentials 服务读取,浏览器端不含任何密钥
 - 零落盘:不写日志、不写缓存文件
+
+## 本地修改后同步到 GitHub
+
+```bash
+./sync.sh
+```
 
 ## 安全说明
 
