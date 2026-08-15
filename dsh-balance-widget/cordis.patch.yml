@@ -1,0 +1,4 @@
+# dsh-balance-widget bundle layer: enables the balance widget row.
+- insert:
+    - id: balance-widget
+      name: dsh-balance-widget

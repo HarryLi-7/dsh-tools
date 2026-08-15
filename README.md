@@ -12,6 +12,16 @@ DeepSeek Harness (DSH) 小工具集:余额查询 + 界面余额小部件。
 
 ## dsh-balance-widget 安装方法
 
+**方式一(官方 `dsh plugin`,推荐):** 包已声明 `dsh.bundle` 并自带 patch 层,可直接用官方命令安装:
+
+```bash
+dsh plugin --profile web add /path/to/dsh-balance-widget
+```
+
+重启 DSH(`dsh web`)后生效。
+
+**方式二(手动,无需 pnpm):**
+
 1. 把 `dsh-balance-widget` 目录复制到 `~/.dsh/profiles/packages/`:
 
    ```bash
