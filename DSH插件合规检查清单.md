@@ -56,3 +56,14 @@
 - [ ] 磁盘足迹最小化：host 纯内存；client 持久化只用 localStorage 单键
 - [ ] 网络失败静默降级，不崩、不刷屏
 - [ ] harness 是开发者预览版，可能破坏性变更——跟随 `@deepseek-ai/dsh` rc 版本节奏
+
+## 工具(schema 规则,踩坑记录)
+
+- [ ] `defineTool` 的 `parameters`/`output.schema` 里,**可选参数必须省略 `required` 字段**
+      ——写 `required: false` 会被 schema 编译器直接拒绝(`UNSUPPORTED_SCHEMA`,
+      导致整个插件树启动失败)。必填参数写 `required: true` 即可。
+      (dsh-vision 首启踩过,2026-08-15 记录)
+- [ ] `output.render` 返回 content block 数组(`{type:"text"}` / `{type:"image", attachment}`),
+      图片块需先用 `ctx.attachments.saveImage` 存附件库拿 ref
+- [ ] 外部 CLI 子进程:codex 等用 `spawn` + 手动 `stdin.write/end` 传提示词,
+      `execFile` 的 `input` 选项会导致目标进程读完 stdin 后异常退出(dsh-vision 实测)
