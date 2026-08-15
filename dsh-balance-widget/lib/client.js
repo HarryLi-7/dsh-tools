@@ -12,6 +12,7 @@ window.__ModuleLoader__.load({
     const ERROR_THRESHOLD = 3;
     const LOW_ORANGE = 5;
     const LOW_RED = 2;
+    const BREATHE_BELOW = 1; // 余额 ≤ 1 元时芯片持续呼吸脉冲
     const ENDPOINT = "/dsh-balance-widget/balance";
     const PLATFORM_URL = "https://platform.deepseek.com/balance";
 
@@ -61,6 +62,13 @@ window.__ModuleLoader__.load({
       return "normal";
     }
 
+    // 极低余额:余额 ≤ ¥1 时芯片持续呼吸脉冲(接口失败时沿用最近一次好数据判断)
+    function breatheOf(data) {
+      if (data === null) return false;
+      const bal = data.ok ? Number(data.balance) : data.lastGood ? Number(data.lastGood.balance) : null;
+      return bal !== null && bal <= BREATHE_BELOW;
+    }
+
     function BalanceWidget() {
       const [data, setData] = useState(null);
       useEffect(() => {
@@ -92,7 +100,7 @@ window.__ModuleLoader__.load({
         return () => { alive = false; clearInterval(timer); if (retryTimer !== null) clearTimeout(retryTimer); };
       }, []);
 
-      // 行内紧凑芯片:透明、无边框、状态圆点 + 单击打开官方余额页
+      // 行内紧凑芯片:透明、无边框、状态色 + 单击打开官方余额页
       const chipStyle = {
         display: "inline-flex",
         alignItems: "center",
@@ -119,13 +127,16 @@ window.__ModuleLoader__.load({
 
       const { alert, warn, line } = buildContent(data);
       const tone = toneOf(data);
+      const breathe = breatheOf(data);
       const text = alert || warn || line || "余额:—";
+      const breatheStyle = breathe ? { animation: "dsh-balance-breathe 2s ease-in-out infinite" } : {};
       return createElement("a", {
         href: PLATFORM_URL,
         target: "_blank",
         rel: "noopener",
         title: "点击打开 DeepSeek 官方余额页",
-        style: Object.assign({}, chipStyle, { color: TONES[tone] }),
+        style: Object.assign({}, chipStyle, { color: TONES[tone] }, breatheStyle),
+        ...breathe ? { "data-dsh-balance-breathe": "" } : {},
         onMouseEnter: (e) => { e.currentTarget.style.background = "rgba(128,128,128,0.15)"; },
         onMouseLeave: (e) => { e.currentTarget.style.background = "transparent"; }
       }, createElement("span", { key: "text" }, text));
@@ -135,6 +146,16 @@ window.__ModuleLoader__.load({
     const inject = ["slots"];
 
     function apply(ctx) {
+      // 极低余额呼吸动画 + 无障碍(减少动态效果偏好)降级
+      if (typeof document !== "undefined" && !document.getElementById("dsh-balance-widget-styles")) {
+        const style = document.createElement("style");
+        style.id = "dsh-balance-widget-styles";
+        style.textContent = [
+          "@keyframes dsh-balance-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }",
+          "@media (prefers-reduced-motion: reduce) { [data-dsh-balance-breathe] { animation: none !important; } }"
+        ].join("\n");
+        document.head.appendChild(style);
+      }
       ctx.effect(() => ctx.slots.inject("conversation.input.left", () => ctx.slots.register({
         name: "conversation.input.left",
         id: "balance-widget",
@@ -147,6 +168,7 @@ window.__ModuleLoader__.load({
     exports.BalanceWidget = BalanceWidget;
     exports.buildContent = buildContent;
     exports.toneOf = toneOf;
+    exports.breatheOf = breatheOf;
     return module.exports;
   }
 });
