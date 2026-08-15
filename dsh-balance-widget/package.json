@@ -2,9 +2,13 @@
   "name": "dsh-balance-widget",
   "version": "0.1.0",
   "private": true,
-  "description": "Show DeepSeek account balance in the DSH web sidebar footer",
+  "description": "Show DeepSeek account balance in the DSH web composer input row",
   "type": "module",
   "main": "lib/index.js",
+  "files": [
+    "lib",
+    "cordis.patch.yml"
+  ],
   "exports": {
     ".": "./lib/index.js",
     "./client": "./lib/client.js",
@@ -18,7 +22,7 @@
     "client": {
       "inject": [
         "@deepseek-ai/dsh-client-runtime",
-        "@deepseek-ai/dsh-client-ui-sidebar"
+        "@deepseek-ai/dsh-client-ui-conversation"
       ],
       "platform": "web"
     }

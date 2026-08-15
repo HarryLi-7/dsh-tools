@@ -1,8 +1,20 @@
 # DSH 插件项目合规检查清单
 
+> **锚定版本**：以下条目基于 2026-08-15 的官方文档 + 本地 `@deepseek-ai/dsh 0.1.0-rc.6` 实测。
+> harness 是开发者预览版，官方文档和规则可能随时变更（破坏性变更预期内）。
+>
+> **复核机制**：每次 DSH 升级、官方文档更新，或开始新的插件项目前，重新拉取官方文档核对本清单；
+> 核对后更新下方的复核记录。清单条目失效时标注"已失效"并写明新规则，而不是悄悄删掉。
+
 依据官方文档：
 - 打包与安装：https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/user/develop/basic/publish.md
 - 中文 README：https://github.com/deepseek-ai/deepseek-harness/blob/master/README.zh.md
+
+## 复核记录
+
+| 日期 | 核对依据 | 结论 |
+|---|---|---|
+| 2026-08-15 | dsh 0.1.0-rc.6 + publish.md / README.zh.md master | 清单建立，全部条目经实测验证 |
 
 ## 打包（bundle 格式）
 
