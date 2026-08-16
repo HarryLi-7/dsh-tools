@@ -67,3 +67,15 @@
       图片块需先用 `ctx.attachments.saveImage` 存附件库拿 ref
 - [ ] 外部 CLI 子进程:codex 等用 `spawn` + 手动 `stdin.write/end` 传提示词,
       `execFile` 的 `input` 选项会导致目标进程读完 stdin 后异常退出(dsh-vision 实测)
+
+## 本轮新踩的坑(2026-08-16,dsh-vision/dsh-tool-fold)
+
+- [ ] client 上传文件命名变化时,要同步检查 client 解析正则 + host 白名单
+      (曾把上传文件名从 8 位 hex 改 12 位,漏改正则导致缩略图失效)
+- [ ] 会话作用域插槽组件拿 `inputActions`(含 setDraft)做草稿写入;
+      全局粘贴/拖拽拦截不能用 hook(渲染外),草稿读取用 DOM 直读
+- [ ] chain 插槽只渲染第一个 select 非空的条目;要共存需以更低 priority
+      接管并自行承接职责(tool-fold 同理:html 属性承载状态,CSS 驱动显示)
+- [ ] 结构化 JSON 引擎输出:提示词要求纯 JSON + 解析容忍围栏/噪音,
+      失败回退文本;agent 必须把自然语言总结写进回复正文
+      (工具结果可能被折叠插件隐藏,引用它用户看不到)

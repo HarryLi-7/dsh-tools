@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>dsh-vision 效果演示(纯前端,不碰 harness)</title>
+<style>
+  :root {
+    --bg: #f5f6f8; --surface: #ffffff; --border: rgba(0,0,0,0.1);
+    --label: #1f2328; --label2: #646a73; --label3: #8c919b;
+    --accent: #4d6bfe; --code-bg: #f0f1f4; --shadow: 0 8px 28px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--label); padding: 24px; }
+  h1 { font-size: 18px; margin-bottom: 4px; }
+  .sub { color: var(--label3); font-size: 12px; margin-bottom: 20px; }
+  .note { background: #fff8e6; border: 1px solid #f0d9a8; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #8a6d1a; margin-bottom: 20px; }
+
+  .window { max-width: 780px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+  .winbar { display: flex; gap: 6px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; } .dot.y { background: #febc2e; } .dot.g { background: #28c840; }
+  .winbar span { margin-left: 10px; font-size: 12px; color: var(--label3); }
+
+  .chat { padding: 16px; display: flex; flex-direction: column; gap: 14px; max-height: 460px; overflow-y: auto; }
+  .msg { display: flex; gap: 10px; }
+  .avatar { width: 28px; height: 28px; border-radius: 8px; flex: none; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .avatar.user { background: #e8e9ff; }
+  .avatar.ai { background: #e4f6e9; }
+  .bubble { flex: 1; min-width: 0; }
+  .bubble .text { font-size: 14px; line-height: 1.7; background: var(--code-bg); border-radius: 10px; padding: 10px 14px; }
+  .bubble .meta { font-size: 12px; color: var(--label3); margin-bottom: 4px; }
+
+  /* 工具结果块:纯文本(模型只见这个) */
+  .toolresult { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-top: 8px; }
+  .toolresult .head { background: #fafbfc; padding: 6px 12px; font-size: 12px; color: var(--label3); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .toolresult .body { padding: 10px 14px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; color: var(--label2); }
+
+  /* 文件卡片(交付物) */
+  .filecard { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; margin-top: 8px; cursor: pointer; background: #fafbfc; transition: background .15s; }
+  .filecard:hover { background: #f0f2f5; }
+  .filecard .thumb { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border); background: #fff; }
+  .filecard .name { font-size: 13px; font-weight: 600; }
+  .filecard .sub2 { font-size: 12px; color: var(--label3); }
+  .filecard .open { margin-left: auto; font-size: 12px; color: var(--accent); }
+
+  /* 聊天内嵌图片(新机制渲染) */
+  .inlineimg { margin-top: 8px; border-radius: 10px; border: 1px solid var(--border); max-width: 100%; display: block; }
+  .caption { font-size: 11px; color: var(--label3); margin-top: 4px; }
+
+  .composer { border-top: 1px solid var(--border); padding: 12px 16px; }
+  .composer .row { display: flex; gap: 8px; align-items: center; }
+  .dropzone { flex: 1; border: 1.5px dashed #c3c8d2; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--label2); min-height: 42px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .dropzone.drag { border-color: var(--accent); background: #eef1ff; }
+  .dropzone .thumb { width: 28px; height: 28px; border-radius: 6px; object-fit: cover; }
+  .dropzone .path { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--label3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .send { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-size: 13px; cursor: pointer; }
+  .send:disabled { opacity: .4; cursor: default; }
+  .hint { font-size: 11px; color: var(--label3); margin-top: 8px; }
+  .btn { border: 1px solid var(--border); background: #fff; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; color: var(--label2); }
+  .btn:hover { background: #f0f2f5; }
+</style>
+</head>
+<body>
+<h1>dsh-vision 效果演示(纯前端模拟)</h1>
+<div class="sub">不安装任何插件、不改 harness —— 仅展示"绕开限制后"对话里看到的样子</div>
+<div class="note">核心原则:模型上下文 100% 纯文本(工具结果块),图片只活在 UI 层(文件卡片 + 内嵌渲染),彻底避开 DeepSeek 文本 adapter 的图片限制。</div>
+
+<div class="window">
+  <div class="winbar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span>DeepSeek Harness · 对话演示</span></div>
+
+  <div class="chat">
+    <!-- 用户消息 -->
+    <div class="msg">
+      <div class="avatar user">🙋</div>
+      <div class="bubble">
+        <div class="text">生成一张中国男性吃兰州拉面的图片</div>
+      </div>
+    </div>
+
+    <!-- 助手调用工具 -->
+    <div class="msg">
+      <div class="avatar ai">🤖</div>
+      <div class="bubble">
+        <div class="meta">正在调用工具 generate_image ...</div>
+        <div class="toolresult">
+          <div class="head"><span>generate_image</span><span>codex (gpt-5.6-luna)</span></div>
+          <div class="body">engine: codex (gpt-5.6-luna)
+prompt: 中国男性吃兰州拉面
+saved: /Users/harry/.../generated-lanzhou.png
+size: 1402x1122</div>
+        </div>
+        <!-- 交付物卡片:点击展开内嵌图 -->
+        <div class="filecard" onclick="toggleImg()">
+          <img class="thumb" src="./demo-lanzhou.png" alt="">
+          <div><div class="name">generated-lanzhou.png</div><div class="sub2">1402×1122 · 图片</div></div>
+          <div class="open">查看 ▸</div>
+        </div>
+        <img class="inlineimg" id="inline-img" src="./demo-lanzhou.png" alt="生成的兰州拉面图" style="display:none">
+        <div class="caption" id="img-caption" style="display:none">← 内嵌显示:client 组件直接渲染文件(不经模型)</div>
+      </div>
+    </div>
+
+    <!-- 助手最终回复:纯文本 -->
+    <div class="msg">
+      <div class="avatar ai">🤖</div>
+      <div class="bubble">
+        <div class="text">图片已生成 ✓(codex · gpt-5.6-luna)
+文件:generated-lanzhou.png(1402×1122)
+点上面的卡片或直接看图 ↓</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模拟输入框:粘贴转路径 -->
+  <div class="composer">
+    <div class="row">
+      <div class="dropzone" id="dz">
+        <span>📷 点击选图 / 直接 Ctrl+V 粘贴(模拟)</span>
+      </div>
+      <button class="send" id="send" disabled>发送</button>
+    </div>
+    <div class="hint">演示②:粘贴的图片 → 自动转成文件路径文本 → 进对话(模型只见路径文字,再调 describe_image 识图)</div>
+  </div>
+</div>
+
+<script>
+// 演示①:卡片点击切换内嵌图
+function toggleImg() {
+  const img = document.getElementById("inline-img");
+  const cap = document.getElementById("img-caption");
+  const show = img.style.display === "none";
+  img.style.display = show ? "block" : "none";
+  cap.style.display = show ? "block" : "none";
+}
+
+// 演示②:粘贴/选图 → 转路径文本
+const dz = document.getElementById("dz");
+const send = document.getElementById("send");
+let inserted = false;
+
+dz.addEventListener("click", () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.onchange = () => { if (input.files[0]) showPath(input.files[0]); };
+  input.click();
+});
+document.addEventListener("paste", (e) => {
+  const items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.type && item.type.startsWith("image/")) {
+      const file = item.getAsFile();
+      if (file) { e.preventDefault(); showPath(file); return; }
+    }
+  }
+});
+function showPath(file) {
+  const url = URL.createObjectURL(file);
+  const name = file.name || ("paste-" + Date.now() + ".png");
+  dz.innerHTML = `<img class="thumb" src="${url}"><div class="path">/Users/harry/.dsh/attachments/${name}(已转路径,模型只见这段文字)</div>`;
+  inserted = true;
+  send.disabled = false;
+}
+send.addEventListener("click", () => {
+  if (!inserted) return;
+  // 模拟发送后:路径文本进入对话
+  const chat = document.querySelector(".chat");
+  const msg = document.createElement("div");
+  msg.className = "msg";
+  msg.innerHTML = `<div class="avatar user">🙋</div><div class="bubble"><div class="text">请识别这张图:/Users/harry/.dsh/attachments/paste-xxx.png</div></div>`;
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+  send.disabled = true;
+  inserted = false;
+  dz.innerHTML = "<span>📷 点击选图 / 直接 Ctrl+V 粘贴(模拟)</span>";
+});
+</script>
+</body>
+</html>
